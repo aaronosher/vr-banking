@@ -51,17 +51,6 @@ class capitalOneCustomer(capitalOne):
 
 		return response
 
-	def get_account(self, account_id=0):
-		# Check if user_id is set or not. Use sef.user_id if its not
-		if  account_id == 0:
-			return None
-
-		# gets the users accounts information
-		url = '''http://api.reimaginebanking.com/accounts/{}/?key={}'''.format(account_id, self.API_KEY)
-		response = requests.get(url)
-
-		return response
-
 	def search_accounts(self, accounts=0, search_term=0):
 		# Check if accounts is set or not. Use sef.accounts if its not
 		if accounts == 0:
@@ -77,29 +66,53 @@ class capitalOneCustomer(capitalOne):
 				if search_term == value:
 					return i['_id']
 
-	def get_useful_information(self, account_id):
-		# uses account ID to get useful information. Account ID is found by using parse_accounts_of_users
-		# to find a specific account based on the search term, 'credit card' or 'savings'.
-		# use get_account to get a list of multiple accounts which goes into parse_accounts
-		output = requests.get('http://api.reimaginebanking.com/accounts/{}?key={}'.format(account_id, self.API_KEY))
-		parsed_json = json.loads(output.text)
-		name = parsed_json['nickname']
-		balance = parsed_json['balance']
-		if parsed_json['type'] == 'Credit Card':
-			rewards = parsed_json['rewards']
-			useful_dict = {"Name" : name, "Balance" : balance, "Rewards" : rewards}
-		else:
-			useful_dict = {"Name": name, "Balance": balance}
-
-		return useful_dict
-
+"""
+_id => account id
+name => account name/nickname
+balance => accont balance
+	Note credit cards are technically negative
+rewards => accounts reward balance
+_type => accoutn type
+	Checking, Savings, Credit Card
+"""
 class capitalOneAccount(capitalOne):
+	#Object Vatibales
+	_id = None
+	name = None
+	balance = None
+	rewards = None
+	_type = None
 
 	def __init__(self, account_id):
+		if account_id is None:
+			return None
+
+		self.get_account(account_id=account_id)
+
+		return None
+
+	def get_account(self, account_id=0):
+		# Check if user_id is set or not. Use sef.user_id if its not
+		if account_id is None:
+			return None
+
+		# gets the users accounts information
+		url = 'http://api.reimaginebanking.com/accounts/{}/?key={}'.format(account_id, self.API_KEY)
+		response = requests.get(url)
+		response = json.loads(response.text)
+
+		self._id = response['_id']
+		self.name = response['nickname']
+		self.balance = response['balance']
+		self.rewards = response['rewards']
+		self._type = response['type']
+
+
 		return None
 
 user = capitalOneCustomer(user_id='583998b40fa692b34a9b8766')
 
 account = user.search_accounts(search_term='Savings')
 
-print(user.get_useful_information(account_id=account))
+account = capitalOneAccount(account_id=account)
+print(account._type)
