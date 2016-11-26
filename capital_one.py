@@ -43,5 +43,6 @@ class capitalOne:
 			rewards = parsed_json['rewards']
 			useful_dict = {"Name" : name, "Balance" : balance, "Rewards" : rewards}
 		else:
+			useful_dict = {"Name": name, "Balance": balance,}
 
 capitalOne.useful_information_account('5839a4890fa692b34a9b8770')
