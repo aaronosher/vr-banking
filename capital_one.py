@@ -24,25 +24,24 @@ class capitalOne:
 		response = requests.get(url)
 		return response
 
-	def parse_accounts_of_users(parsed_json, user_request):
-		logging.debug(user_request)
+	def parse_accounts_of_users(response, user_request):
+		parsed_json = json.loads(response)
 		# gets a specific accoutn from the user using user_request
-
-
-		logging.debug("parsed json is")
+		logging.debug(user_request)
 		for i in parsed_json:
 			for key, value in i.items():
 				if user_request == value:
 					return i['_id']
 
+	def useful_information_account(id):
+		output = requests.get('http://api.reimaginebanking.com/accounts/{}?key={}'.format(id, API_KEY))
+		parsed_json = json.loads(output.text)
+		print(parsed_json)
+		name = parsed_json['nickname']
+		balance = parsed_json['balance']
+		if parsed_json[type] == 'Credit Card':
+			rewards = parsed_json['rewards']
+			useful_dict = {"Name" : name, "Balance" : balance, "Rewards" : rewards}
+		else:
 
-v = {"cat" : "the defintion of a cat"}
-
-user_account_id = '5839a4890fa692b34a9b8770'
-response1 = (capitalOne.get_user().text)
-#dump_json = json.dumps(response1)
-
-parsed_json = json.loads(response1)
-print(parsed_json)
-
-print(capitalOne.parse_accounts_of_users(parsed_json, user_request='Credit Card'))
+capitalOne.useful_information_account('5839a4890fa692b34a9b8770')
