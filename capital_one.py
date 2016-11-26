@@ -1,6 +1,6 @@
 import requests
 
-API_KEY = '0d43177fd2d1f2a235f4222ed1cc32bd'
+API_KEY = '64af502fd1accf4c465e230fc76e0327'
 
 class capitalOne:
 	@staticmethod
@@ -9,12 +9,11 @@ class capitalOne:
 		data = '{"type": "Credit Card","nickname": "Way Too High APR","rewards": 700,"balance": 0}'
 		response = requests.get(url, data=data)
 		return response
+
 	def get_account(id):
-		url = '''api.reimaginebanking.com/accounts/{}/?key={}'''.format(id, API_KEY)
+		url = '''http://api.reimaginebanking.com/accounts/{}/?key={}'''.format(user_id, API_KEY)
 		response = requests.get(url)
 		return response
 
-
-print(capitalOne.get_user().text)
-id = ''5839a4890fa692b34a9b8770''
-print(capitalOne.get_account(id))
+user_id = '5839a4890fa692b34a9b8770'
+print(capitalOne.get_account(user_id).text)
