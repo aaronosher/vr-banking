@@ -7,11 +7,6 @@ from capital_one import user
 app = Flask(__name__)
 ask = Ask(app, "/")
 logging.getLogger("flask_ask").setLevel(logging.DEBUG)
-name = "savings"
-balance = 500
-rewards = 15
-
-useful_dict = {"Name": name, "Balance": balance, "Rewards": rewards}
 
 # Startup launch command
 @ask.launch
