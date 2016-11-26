@@ -10,10 +10,10 @@ class capitalOne:
 		response = requests.get(url, data=data)
 		return response
 
-	def get_account(id):
-		url = '''http://api.reimaginebanking.com/accounts/{}/?key={}'''.format(user_id, API_KEY)
+	def get_account(user_account_id):
+		url = '''http://api.reimaginebanking.com/accounts/{}/?key={}'''.format(user_account_id, API_KEY)
 		response = requests.get(url)
 		return response
 
-user_id = '5839a4890fa692b34a9b8770'
-print(capitalOne.get_account(user_id).text)
+user_account_id = '5839a4890fa692b34a9b8770'
+print(capitalOne.get_account(user_account_id).text)
