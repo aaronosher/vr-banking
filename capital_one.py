@@ -10,14 +10,44 @@ logging.basicConfig(filename='_ProgramLog.txt', level=logging.DEBUG,
 API_KEY = '64af502fd1accf4c465e230fc76e0327'
 
 class capitalOne:
-	@staticmethod
-	def get_user():
-		# Gets the users information
-		url = '''http://api.reimaginebanking.com/customers/583998b40fa692b34a9b8766/accounts?key={}'''.format(API_KEY)
-		data = '{"type": "Credit Card","nickname": "Way Too High APR","rewards": 700,"balance": 0}'
-		response = requests.get(url, data=data)
+	# Object Variables
+	user_id = None
+	accounts = []
+
+	# __init__ constructor
+	# Checks if user_id is valid and then saves it to the variabls
+	def __init__(self, user_id):
+		if user_id is None:
+			print 'None'
+
+		if self.get_customer(user_id).status_code == 200:
+			self.user_id = user_id
+
+		return None
+
+	def get_customer(self, user_id=0):
+		# Check if user_id is set or not. Use sef.user_id if its not
+		if not user_id:
+			user_id = self.user_id
+
+		# Make request
+		url = 'http://api.reimaginebanking.com/customers/{}?key={}'.format(user_id, API_KEY)
+		response = requests.get(url)
+
 		return response
 
+	def get_accounts(self, user_id=0):
+		# Check if user_id is set or not. Use sef.user_id if its not
+		if not user_id:
+			user_id = self.user_id
+
+		# Make request
+		url = 'http://api.reimaginebanking.com/customers/{}/accounts?key={}'.format(user_id, API_KEY)
+		response = requests.get(url)
+
+		return response
+
+	@staticmethod
 	def get_account(user_account_id):
 		# gets the users accounts information
 		url = '''http://api.reimaginebanking.com/accounts/{}/?key={}'''.format(user_account_id, API_KEY)
@@ -36,13 +66,4 @@ class capitalOne:
 					return i['_id']
 
 
-v = {"cat" : "the defintion of a cat"}
-
-user_account_id = '5839a4890fa692b34a9b8770'
-response1 = (capitalOne.get_user().text)
-#dump_json = json.dumps(response1)
-
-parsed_json = json.loads(response1)
-print(parsed_json)
-
-print(capitalOne.parse_accounts_of_users(parsed_json, user_request='Credit Card'))
+user = capitalOne('583998b40fa692b34a9b8766')
