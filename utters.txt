@@ -1,0 +1,4 @@
+# Get Request Intents
+GetFirstName my name is {first_name}
+GetRequest get account {request}
+GetRequest get {request}

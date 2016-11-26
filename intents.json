@@ -1,0 +1,35 @@
+{
+  "intents":
+  [
+    {
+      "intent": "GetRequest",
+      "slots":
+      [
+        {
+          "name": "request",
+          "type": "AMAZON.US_FIRST_NAME"
+        }
+      ]
+    },
+
+    {
+      "intent": "GetFirstName",
+      "slots":
+      [
+        {
+          "name": "first_name",
+          "type": "AMAZON.US_FIRST_NAME"
+        }
+      ]
+    },
+
+    {
+       "intent": "HelloIntent"
+    },
+
+    {
+      "intent": "AMAZON.StopIntent"
+    }
+    // More intents here
+  ]
+}
