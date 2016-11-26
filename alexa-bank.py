@@ -1,14 +1,22 @@
-try:
-	import requests
-	import json
-	import random
-except ImportError as e:
-	print(e)
+import random
+import pickle
+import os.path
+import json
 
 
-APIKEY = '64af502fd1accf4c465e230fc76e0327'
+#TODO test this
 
-def main():
+def owe_money(how_much):
+	# assuming how_much is a dictionary
+	if os.path.exists("owe.json", 'r'):
+		with open("owe.json", 'r+') as fp:
+			data = json.load(fp)
+			data.append(how_much)
+			with open("owe.json", 'w') as fp:
+				json.dump(how_much, fp)
+	else:
+		with open("owe.json", 'w') as fp:
+			json.dump(how_much, fp)
 
 
-main()
+
