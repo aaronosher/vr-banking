@@ -65,6 +65,9 @@ class capitalOne:
 
 	@staticmethod
 	def useful_information_account(id):
+		# uses account ID to get useful information. Account ID is found by using parse_accounts_of_users
+		# to find a specific account based on the search term, 'credit card' or 'savings'.
+		# use get_account to get a list of multiple accounts which goes into parse_accounts
 		output = requests.get('http://api.reimaginebanking.com/accounts/{}?key={}'.format(id, API_KEY))
 		parsed_json = json.loads(output.text)
 		print(parsed_json)
