@@ -90,3 +90,5 @@ ENV/
 
 #MAC Killer
 .DS_Store
+*.xml
+.idea/vr-banking.iml
