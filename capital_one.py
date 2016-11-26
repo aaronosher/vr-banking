@@ -1,4 +1,5 @@
 import requests
+import json
 
 API_KEY = '64af502fd1accf4c465e230fc76e0327'
 
@@ -14,6 +15,9 @@ class capitalOne:
 		url = '''http://api.reimaginebanking.com/accounts/{}/?key={}'''.format(user_account_id, API_KEY)
 		response = requests.get(url)
 		return response
+	def parse_accounts_of_users(response, user_request):
+		if use
+
 
 user_account_id = '5839a4890fa692b34a9b8770'
 print(capitalOne.get_account(user_account_id).text)
