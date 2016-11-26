@@ -57,7 +57,7 @@ class capitalOneCustomer(capitalOne):
 			return None
 
 		# gets the users accounts information
-		url = '''http://api.reimaginebanking.com/accounts/{}/?key={}'''.format(user_account_id, self.API_KEY)
+		url = '''http://api.reimaginebanking.com/accounts/{}/?key={}'''.format(account_id, self.API_KEY)
 		response = requests.get(url)
 
 		return response
