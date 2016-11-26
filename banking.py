@@ -7,13 +7,26 @@ app = Flask(__name__)
 ask = Ask(app, "/")
 logging.getLogger("flask_ask").setLevel(logging.DEBUG)
 
+# Startup launch command
 @ask.launch
 def launch():
     return statement("Minions assemble")
 
+# Intent for whenever hello is said (See utters)
 @ask.intent("HelloIntent")
 def hello():
     return statement("I welcome you minion")
+
+# Stop intent
+@ask.intent("AMAZON.StopIntent")
+def stop():
+    return statement("Exiting program")
+
+# Session ended console output
+@ask.session_ended
+def sessionEnded():
+    log.debug("Session ended")
+    return "", 200
 
 
 # Python functions
