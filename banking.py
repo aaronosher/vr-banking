@@ -93,6 +93,14 @@ def getAccsOfType(request):
 			msg = "Account {}, balance {}".format(accountObj.name, accountObj.balance)
 			return statement(msg)
 
+@ask.intent("GetBills")
+def getBills():
+	billsList = ["some bills", "more bills"] # Change
+	for i in billsList:
+		msg = str(billsList[i])
+		return statement(msg)
+
+
 def owe_money(how_much):
 	# assuming how_much is a dictionary
 	if os.path.exists("owe.json"):

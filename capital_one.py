@@ -237,8 +237,8 @@ class capitalOneBill(capitalOne):
 		if self.status == 'completed':
 			return {"errors": "Bill is Already Paid"}
 
-		elif self.status == 'cancled':
-			return {"errors": "Bill has been cancled"}
+		elif self.status == 'canceled':
+			return {"errors": "Bill has been canceled"}
 
 		if capitalOneTransfer.new(_from=self.account_id, _to=self.GLOBAL_PAYEE, amount=self.payment_amount, API_KEY=self.API_KEY)._id is not None:
 			self.markAsPaid()
