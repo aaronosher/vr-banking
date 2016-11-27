@@ -41,36 +41,36 @@ def getRequest(first_name):
 @ask.intent("GetAccInfo")
 def getInfo(request):
 	inputRequest = str(request.title())
-	print("Input Request: ", inputRequest) # Debugging only
+	print("[===] Input Request: ", inputRequest) # Debugging only
 	if  (user.find_account(search_term = inputRequest)) == None:
 		msg = "I am sorry, I did not understand"
 	else:
 		accountDict = user.find_account(search_term = inputRequest)
-		accountObj = accountDict["account"][0]
+		accountObj = accountDict["accounts"][0]
 		msg = "Account {0}. Your balance is {1} pounds".format(accountObj.name, accountObj.balance)
 	return statement(msg)
 
 @ask.intent("GetAccBal")
 def getBal(request):
 	inputRequest = str(request.title())
-	print("Input Request: ", inputRequest) #Debugging only
+	print("[===] Input Request: ", inputRequest) #Debugging only
 	if  (user.find_account(search_term = inputRequest)) == None:
 		msg = "I am sorry, I did not understand"
 	else:
 		accountDict = user.find_account(search_term = inputRequest)
-		accountObj = accountDict["account"][0]
+		accountObj = accountDict["accounts"][0]
 		msg = "Your balance is {} pounds".format(accountObj.balance)
 	return statement(msg)
 
 @ask.intent("GetAccType")
 def getType(request):
 	inputRequest = str(request.title())
-	print("Input Request: ", inputRequest) #Debugging only
+	print("[===] Input Request: ", inputRequest) #Debugging only
 	if  (user.find_account(search_term = inputRequest)) == None:
 		msg = "I am sorry, I did not understand"
 	else:
 		accountDict = user.find_account(search_term = inputRequest)
-		accountObj = accountDict["account"][0]
+		accountObj = accountDict["accounts"][0]
 		msg = "Account type is {}".format(accountObj._type)
 	return statement(msg)
 
@@ -79,7 +79,7 @@ def getType(request):
 @ask.intent("GetAccsOfType")
 def getAccsOfType(request):
 	inputRequest = str(request.title())
-	print("Input Request: ", inputRequest) #Debugging only
+	print("[===] Input Request: ", inputRequest) #Debugging only
 	if  (user.find_account(search_term = inputRequest)) == None:
 		msg = "I am sorry, I did not understand"
 		return statement(msg)
@@ -113,6 +113,7 @@ def how_much_do_i_owe():
 #	return statement(msg)
 
 if __name__ == '__main__':
+	getInfo("retirement")
 	app.run()
 
 
