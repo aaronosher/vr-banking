@@ -71,7 +71,7 @@ class capitalOneCustomer(capitalOne):
 			return None
 
 		# make search_term case insesitive
-		search_term = search_term.title()
+		search_term = search_term.lower()
 
 		# set results list
 		results = []
@@ -386,7 +386,7 @@ class summary(capitalOne):
 
 user = capitalOneCustomer(user_id='583998b40fa692b34a9b8766')
 
-print(user.find_account(search_term='ben checking')['accounts'][0])
+print(user.find_account(search_term='ben checking'))
 #
 # bill = capitalOneBill(bill_id='583ab6850fa692b34a9b8a06')
 #
