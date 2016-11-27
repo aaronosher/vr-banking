@@ -324,7 +324,3 @@ user = capitalOneCustomer(user_id='583998b40fa692b34a9b8766')
 payment = capitalOnePayment()
 test = payment.pay(amount = 10.0, account='5839a79a0fa692b34a9b8771')
 print(test)
-how_much = ['Ollie', 1337]
-payment.owe_money(how_much)
-a = payment.how_much_do_i_owe()
-print(a)
