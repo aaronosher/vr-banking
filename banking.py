@@ -75,6 +75,20 @@ def getType(request):
 	return statement(msg)
 
 
+# Gets multiple accounts of the given type
+@ask.intent("GetAccsOfType")
+def getAccsOfType(request):
+	inputRequest = str(request.title())
+	print("Input Request: ", inputRequest) #Debugging only
+	if  (user.search_accounts(search_term = inputRequest)) == None:
+		msg = "I am sorry, I did not understand"
+		return statement(msg)
+	else:
+		accountList = capitalOneCustomer.find_multiple_accounts(user, account_type = inputRequest)
+		for i in accountList:
+			msg = "Account {}, balance {}".format(accountList[i].name, accountList[i].balance)
+			return statement(msg)
+
 
 def owe_money(how_much):
 	# assuming how_much is a dictionary
