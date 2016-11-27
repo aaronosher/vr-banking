@@ -236,17 +236,18 @@ class capitalOnePayment(capitalOne):
 	def __init__(self):
 		return None
 
-	def pay(self, amount, account, merchant_id='57cf75cea73e494d8675ec53'):
+	def pay(self, amount, account, merchant_id='583aad470fa692b34a9b89f3'):
 		try:
 			amount = float(amount)
 		except TypeError as e:
 			print("Amount is not a number.")
 			return 1
 
-		data = {"merchant_id": "57cf75cea73e494d8675ec4a", "medium": "balance", "purchase_date": "2016-11-27", "amount": amount, "description": "product"}
-		url = 'http://api.reimaginebanking.com/merchants?key={}&id={}'.format(self.API_KEY, account)
-
-		r = requests.get(url, data)
+		data = {"code":0,"message":"string","objectCreated":{"_id": self.API_KEY ,"type":"merchant","merchant_id":merchant_id,"payer_id":"string","purchase_date":"2016-11-27","amount":amount,"status":"pending","medium":"balance","description":"string"}}
+		url = 'http://api.reimaginebanking.com/merchants?key={}&id={}'.format(self.API_KEY, merchant_id)
+		r = requests.post(url, data)
+		print(r)
+		print(r.text)
 		if r == """"<Response [200]>""":
 			print(r.text)
 		else:
@@ -254,21 +255,35 @@ class capitalOnePayment(capitalOne):
 
 
 	def owe_money(self, how_much):
+		# this may not work for names with numbers in
 		import os
+		import json
+
 		# assuming how_much is a dictionary
 		if os.path.exists("owe.json"):
-			with open("owe.json", 'r+') as fp:
-				data = json.load(fp)
-				data.append(how_much)
-				with open("owe.json", 'w') as fp:
-					json.dump(how_much, fp)
+			file = open("owe.json", 'r+')
+			data = json.load(file)
+
+			key = how_much[0]
+			value = how_much[1]
+
+			data[key] = value
+
+			file.close()
+			file = open("owe.json", 'w')
+			json.dump(data, fp=file)
+			file.close()
 		else:
-			with open("owe.json", 'w') as fp:
-				json.dump(how_much, fp)
+			# this literally doesnt work
+			file = open("owe.json", 'w')
+			how_much = list(how_much)
+			a = json.dump(how_much)
+			file.write(a)
+			file.close()
 
 	def how_much_do_i_owe(self):
 		with open("owe.json", 'r') as fp:
-			return json.load('owe.json', fp)
+			return json.load(fp)
 
 	def getPayment(self, bill_id):
 		if bill_id is None:
@@ -279,7 +294,7 @@ class capitalOnePayment(capitalOne):
 		data = {"merchant_id": "57cf75cea73e494d8675ec4a", "medium": "balance", "purchase_date": "2016-11-27", "amount": amount, "description": "product"}
 		url = 'http://api.reimaginebanking.com/merchants?key={}&id={}'.format(self.API_KEY, account)
 
-		r = requests.get(url, data)
+		r = requests.post(url, data)
 		print(r)
 		# we literally dont need json here, just a true or false code
 
@@ -309,3 +324,7 @@ user = capitalOneCustomer(user_id='583998b40fa692b34a9b8766')
 payment = capitalOnePayment()
 test = payment.pay(amount = 10.0, account='5839a79a0fa692b34a9b8771')
 print(test)
+how_much = ['Ollie', 1337]
+payment.owe_money(how_much)
+a = payment.how_much_do_i_owe()
+print(a)
