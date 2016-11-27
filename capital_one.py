@@ -183,7 +183,8 @@ class capitalOneAccount(capitalOne):
 		for i in response:
 			bills.append(capitalOneBill(bill_id=i['_id']))
 
-			return {'total': len(bills), 'bills': bills}
+			# return {'total': len(bills), 'bills': bills}
+			return bills
 
 
 class capitalOneBill(capitalOne):
