@@ -3,7 +3,8 @@ from random import randint
 from flask import Flask, render_template
 from flask_ask import Ask, statement, question, session
 from capital_one import capitalOneAccount, capitalOneCustomer, user
-
+import os.path
+import json
 app = Flask(__name__)
 ask = Ask(app, "/")
 logging.getLogger("flask_ask").setLevel(logging.DEBUG)
@@ -17,6 +18,7 @@ def launch():
 @ask.intent("HelloIntent")
 def hello():
 	return statement("I welcome you minion")
+
 
 # Stop intent
 @ask.intent("AMAZON.StopIntent")
@@ -71,6 +73,24 @@ def getType(request):
 		account = capitalOneAccount(account_id = accountID)
 		msg = "Account type is {}".format(account._type)
 	return statement(msg)
+
+
+
+def owe_money(how_much):
+	# assuming how_much is a dictionary
+	if os.path.exists("owe.json"):
+		with open("owe.json", 'r+') as fp:
+			data = json.load(fp)
+			data.append(how_much)
+			with open("owe.json", 'w') as fp:
+				json.dump(how_much, fp)
+	else:
+		with open("owe.json", 'w') as fp:
+			json.dump(how_much, fp)
+
+def how_much_do_i_owe():
+	with open("owe.json", 'r') as fp:
+		return json.load('owe.json', fp)
 
 #@ask.intent("GetAccountID")
 #def getID():
