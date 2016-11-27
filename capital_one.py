@@ -5,11 +5,16 @@ import logging
 
 # imports the loggign module, creates a logging file called "ProgramLog.txt"
 logging.basicConfig(filename='_ProgramLog.txt', level=logging.DEBUG,
-                    format=' %(asctime)s - %(levelname)s- %(message)s')
+					format=' %(asctime)s - %(levelname)s- %(message)s')
 
-API_KEY = '64af502fd1accf4c465e230fc76e0327'
 
 class capitalOne:
+	#API key
+	API_KEY = '64af502fd1accf4c465e230fc76e0327'
+
+
+class capitalOneCustomer(capitalOne):
+
 	# Object Variables
 	user_id = None
 	accounts = []
@@ -21,6 +26,7 @@ class capitalOne:
 			return None
 		if self.get_customer(user_id).status_code == 200:
 			self.user_id = user_id
+			self.get_accounts(user_id=user_id)
 
 		return None
 
@@ -30,59 +36,276 @@ class capitalOne:
 			user_id = self.user_id
 
 		# Make request
-		url = 'http://api.reimaginebanking.com/customers/{}?key={}'.format(user_id, API_KEY)
+		url = 'http://api.reimaginebanking.com/customers/{}?key={}'.format(user_id, self.API_KEY)
 		response = requests.get(url)
 
 		return response
 
 	def get_accounts(self, user_id=0):
 		# Check if user_id is set or not. Use sef.user_id if its not
-		if not user_id:
+		if user_id == 0:
 			user_id = self.user_id
 
 		# Make request
-		url = 'http://api.reimaginebanking.com/customers/{}/accounts?key={}'.format(user_id, API_KEY)
-		response = requests.get(url).text
+		url = 'http://api.reimaginebanking.com/customers/{}/accounts?key={}'.format(user_id, self.API_KEY)
+		response = requests.get(url)
+		self.accounts = json.loads(response.text)
 
 		return response
 
-	@staticmethod
-	def get_account(user_account_id):
-		# gets the users accounts information
-		url = '''http://api.reimaginebanking.com/accounts/{}/?key={}'''.format(user_account_id, API_KEY)
-		response = requests.get(url)
-		return response.text
+	"""
+	Used to find an account.
+	Searches and returns all accounts with a common search term.
+	Entire search term does not need to be in the name for it to find it
+	this is not the case for integer values
+	"""
+	def find_account(self, accounts=0, search_term=0):
+		# Check if accounts is set or not. Use sef.accounts if its not
+		if accounts == 0:
+			accounts = self.accounts
 
-	@staticmethod
-	def parse_accounts_of_users(response, user_request):
-		parsed_json = json.loads(response)
-		# gets a specific accoutn from the user using user_request
-		logging.debug(user_request)
-		for i in parsed_json:
-			for key, value in i.items():
-				if user_request == value:
-					return i['_id']
+		# Check if a search term has been set
+		if search_term == 0:
+			return None
 
-	@staticmethod
-	def useful_information_account(id):
-		# uses account ID to get useful information. Account ID is found by using parse_accounts_of_users
-		# to find a specific account based on the search term, 'credit card' or 'savings'.
-		# use get_account to get a list of multiple accounts which goes into parse_accounts
-		output = requests.get('http://api.reimaginebanking.com/accounts/{}?key={}'.format(id, API_KEY))
-		parsed_json = json.loads(output.text)
-		print(parsed_json)
-		name = parsed_json['nickname']
-		balance = parsed_json['balance']
-		if parsed_json['type'] == 'Credit Card':
-			rewards = parsed_json['rewards']
-			useful_dict = {"Name" : name, "Balance" : balance, "Rewards" : rewards}
+		# make search_term case insesitive
+		search_term = search_term.lower()
+
+		# set results list
+		results = []
+
+		# Check if search term is a type of account
+		if search_term in ['Credit Card', 'Savings', 'Checking']:
+			results = self.find_multiple_accounts(account_type=search_term)
+
+		# Otherwise just check for accoutns containing the data
 		else:
-			useful_dict = {"Name": name, "Balance": balance,}
+			# gets a specific accoutn from the user using user_request
+			logging.debug(search_term)
+			for i in accounts:
+				# Loop trough accounts
+				for key, value in i.items():
+					# Check if key is nickname so we don't run anything that cannot by done on an int type
+					if key in ['nickname']:
+						if search_term in value.lower():
+							results.append(capitalOneAccount(i['_id']))
+					# If its an int we just check for an equal value
+					elif key in ['rewards', 'balance']:
+						if search_term == value:
+							results.append(capitalOneAccount(i['_id']))
+
+		# if length is > 0 we return the accounts
+		if len(results) > 0:
+			return {'length': len(results), 'accounts': results}
+
+		# If no accounts exists we just return length:0 – this is so there is no confuse between an actual error and just no resutls
+		else:
+			return {'length': 0}
+
+	"""
+	used for getting all accounts of a specific type
+	returns a list of capitalOneAccount objects
+	"""
+	def find_multiple_accounts(self, accounts=0, account_type=0):
+		# Check if accounts is set or not. Use sef.accounts if its not
+		if accounts == 0:
+			accounts = self.accounts
+
+		if account_type not in ['Credit Card','Savings','Checking']:
+			return "Invalid Account Type"
+
+		results = []
+
+		# gets all of an account type from the user using user_request
+		logging.debug(account_type)
+		for i in accounts:
+			if account_type == i['type']:
+				results.append(capitalOneAccount(i['_id']))
+
+		return results
+
+	def get_total_balance(self):
+		total = 0
+		for i in self.accounts:
+			if i['nickname'] == 'Credit Card':
+				total = total -  i['balance']
+				print(total)
+			else:
+				total = total + i['balance']
+				print(total)
+		return total
+
+"""
+name => account id
+name => account name/nickname
+balance => accont balance
+	Note credit cards are technically negative
+rewards => accounts reward balance
+_type => accoutn type
+	Checking, Savings, Credit Card
+"""
+class capitalOneAccount(capitalOne):
+	#Object Vatibales
+	_id = None
+	name = None
+	balance = None
+	rewards = None
+	_type = None
+	customername = None
+
+	def __init__(self, account_id):
+		if account_id is None:
+			return None
+
+		self.get_account(account_id=account_id)
+
+		return None
+
+	def get_account(self, account_id=0):
+		# Check if user_id is set or not. Use sef.user_id if its not
+		if account_id is None:
+			return None
+
+		# gets the users accounts information
+		url = 'http://api.reimaginebanking.com/accounts/{}/?key={}'.format(account_id, self.API_KEY)
+		response = requests.get(url)
+		response = json.loads(response.text)
+
+		self._id = response['_id']
+		self.name = response['nickname']
+		self.balance = response['balance']
+		self.rewards = response['rewards']
+		self._type = response['type']
+		self.customer_id = response['customer_id']
 
 
-user = capitalOne('583998b40fa692b34a9b8766')
-response1 = user.get_accounts()
-print(capitalOne.parse_accounts_of_users(response1, "Credit Card"))
+		return None
 
-capitalOne.useful_information_account(id='5839a4890fa692b34a9b8770')
+	def get_bills(self):
+		bills =  []
+		# gets the account's bills
+		url = 'http://api.reimaginebanking.com/accounts/{}/bills?key={}'.format(self._id, self.API_KEY)
+		response = requests.get(url)
+		response = json.loads(response.text)
 
+		for i in response:
+			bills.append(captialOneBill(bill_id=i['_id']))
+
+		return {'total': len(bills), 'bills': bills}
+
+class captialOneBill(capitalOne):
+	# Object variabls
+	_id = None
+	status = None
+	payee = None
+	name = None
+	creation_date = None
+	account_id = None
+	recurring_date = None
+	upcoming_account_id = None
+	payment_amount = None
+	account_id = None
+
+	def __init__(self, bill_id):
+		if bill_id is not None:
+			self.getBiil(bill_id=bill_id)
+
+		return None
+
+	def getBiil(self, bill_id):
+		if bill_id is None:
+			return None
+
+		# gets the bill information
+		url = 'http://api.reimaginebanking.com/bills/{}/?key={}'.format(bill_id, self.API_KEY)
+		response = requests.get(url)
+		response = json.loads(response.text)
+
+		self._id = response['_id']
+		self.status = response['status']
+		self.payee = response['payee']
+		self.name = response['nickname']
+		self.creation_date = response['creation_date']
+		self.account_id = response['account_id']
+		self.recurring_date = response['recurring_date']
+		self.payment_amount = response['payment_amount']
+		self.account_id = response['account_id']
+
+class capitalOnePayment(capitalOne):
+
+	def __init__(self):
+		return None
+
+	def pay(self, amount, account, merchant_id='57cf75cea73e494d8675ec53'):
+		try:
+			amount = float(amount)
+		except TypeError as e:
+			print("Amount is not a number.")
+			return 1
+
+		data = {"merchant_id": "57cf75cea73e494d8675ec4a", "medium": "balance", "purchase_date": "2016-11-27", "amount": amount, "description": "product"}
+		url = 'http://api.reimaginebanking.com/merchants?key={}&id={}'.format(self.API_KEY, account)
+
+		r = requests.get(url, data)
+		if r == """"<Response [200]>""":
+			print(r.text)
+		else:
+			return False
+
+
+	def owe_money(self, how_much):
+		import os
+		# assuming how_much is a dictionary
+		if os.path.exists("owe.json"):
+			with open("owe.json", 'r+') as fp:
+				data = json.load(fp)
+				data.append(how_much)
+				with open("owe.json", 'w') as fp:
+					json.dump(how_much, fp)
+		else:
+			with open("owe.json", 'w') as fp:
+				json.dump(how_much, fp)
+
+	def how_much_do_i_owe(self):
+		with open("owe.json", 'r') as fp:
+			return json.load('owe.json', fp)
+
+	def getPayment(self, bill_id):
+		if bill_id is None:
+			return None
+		# whats bill ID
+
+		# gets the bill information
+		data = {"merchant_id": "57cf75cea73e494d8675ec4a", "medium": "balance", "purchase_date": "2016-11-27", "amount": amount, "description": "product"}
+		url = 'http://api.reimaginebanking.com/merchants?key={}&id={}'.format(self.API_KEY, account)
+
+		r = requests.get(url, data)
+		print(r)
+		# we literally dont need json here, just a true or false code
+
+class summary(capitalOne):
+
+	def __init__(self):
+		return None
+
+	def summary(self):
+		# Financial summart
+		object = capitalOnePayment()
+		owe = object.how_much_do_i_owe(self)
+		total = get_total_balance(self)
+		object = capitalOneCustomer(self)
+		total = object.get_total_balance()
+
+		length = len(owe)
+		string = ""
+		for key, value in owe.items():
+			string = string + "{} {} pounds".format(key, value)
+
+
+		everything = "You currently have a networth of {}. You owe {}".format(total, string)
+
+
+user = capitalOneCustomer(user_id='583998b40fa692b34a9b8766')
+payment = capitalOnePayment()
+test = payment.pay(amount = 10.0, account='5839a79a0fa692b34a9b8771')
+print(test)
