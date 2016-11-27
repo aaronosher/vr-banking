@@ -5,11 +5,13 @@ import logging
 
 # imports the loggign module, creates a logging file called "ProgramLog.txt"
 logging.basicConfig(filename='_ProgramLog.txt', level=logging.DEBUG,
-                    format=' %(asctime)s - %(levelname)s- %(message)s')
+					format=' %(asctime)s - %(levelname)s- %(message)s')
+
 
 class capitalOne:
 	#API key
 	API_KEY = '64af502fd1accf4c465e230fc76e0327'
+
 
 class capitalOneCustomer(capitalOne):
 
@@ -65,6 +67,19 @@ class capitalOneCustomer(capitalOne):
 			for key, value in i.items():
 				if search_term == value:
 					return i['_id']
+	def get_total_balance(self):
+		total = 0
+		for i in self.accounts:
+			if i['nickname'] == 'Credit Card':
+				total = total -  i['balance']
+				print(total)
+			else:
+				total = total + i['balance']
+				print(total)
+		return total
+
+
+
 
 """
 _id => account id
@@ -111,3 +126,4 @@ class capitalOneAccount(capitalOne):
 		return None
 
 user = capitalOneCustomer(user_id='583998b40fa692b34a9b8766')
+
