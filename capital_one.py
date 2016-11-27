@@ -119,29 +119,21 @@ class capitalOneCustomer(capitalOne):
 		# gets all of an account type from the user using user_request
 		logging.debug(account_type)
 		for i in accounts:
-<<<<<<< HEAD
-			for key, value in i.items():
-				if search_term == value:
-					return i['_id']
-	def get_total_balance(self):
-		total = 0
-		for i in self.accounts:
-			if i['nickname'] == 'Credit Card':
-				total = total -  i['balance']
-				print(total)
-			else:
-				total = total + i['balance']
-				print(total)
-		return total
-
-
-
-=======
 			if account_type == i['type']:
 				results.append(capitalOneAccount(i['_id']))
 
 		return results
->>>>>>> aaron
+
+def get_total_balance(self):
+	total = 0
+	for i in self.accounts:
+		if i['nickname'] == 'Credit Card':
+			total = total -  i['balance']
+			print(total)
+		else:
+			total = total + i['balance']
+			print(total)
+	return total
 
 """
 name => account id
@@ -199,8 +191,6 @@ class capitalOneAccount(capitalOne):
 		for i in response:
 			bills.append(captialOneBill(bill_id=i['_id']))
 
-<<<<<<< HEAD
-=======
 		return {'total': len(bills), 'bills': bills}
 
 class captialOneBill(capitalOne):
@@ -243,5 +233,4 @@ class captialOneBill(capitalOne):
 
 
 user = capitalOneCustomer(user_id='583998b40fa692b34a9b8766')
-user.find_account(search_term='John\'s Account')['accounts'][0].get_bills()
->>>>>>> aaron
+print(user.find_multiple_accounts(account_type='Savings'))
