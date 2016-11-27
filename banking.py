@@ -45,9 +45,9 @@ def getInfo(request):
 	if  (user.find_account(search_term = inputRequest)) == None:
 		msg = "I am sorry, I did not understand"
 	else:
-		accountID = user.find_account(search_term = inputRequest)
-		account = capitalOneAccount(account_id = accountID)
-		msg = "Account {0}. Your balance is {1} pounds".format(account.name, account.balance)
+		accountDict = user.find_account(search_term = inputRequest)
+		accountObj = accountDict["account"][0]
+		msg = "Account {0}. Your balance is {1} pounds".format(accountObj.name, accountObj.balance)
 	return statement(msg)
 
 @ask.intent("GetAccBal")
@@ -57,9 +57,9 @@ def getBal(request):
 	if  (user.find_account(search_term = inputRequest)) == None:
 		msg = "I am sorry, I did not understand"
 	else:
-		accountID = user.find_account(search_term = inputRequest)
-		account = capitalOneAccount(account_id = accountID)
-		msg = "Your balance is {} pounds".format(account.balance)
+		accountDict = user.find_account(search_term = inputRequest)
+		accountObj = accountDict["account"][0]
+		msg = "Your balance is {} pounds".format(accountObj.balance)
 	return statement(msg)
 
 @ask.intent("GetAccType")
@@ -69,9 +69,9 @@ def getType(request):
 	if  (user.find_account(search_term = inputRequest)) == None:
 		msg = "I am sorry, I did not understand"
 	else:
-		accountID = user.find_account(search_term = inputRequest)
-		account = capitalOneAccount(account_id = accountID)
-		msg = "Account type is {}".format(account._type)
+		accountDict = user.find_account(search_term = inputRequest)
+		accountObj = accountDict["account"][0]
+		msg = "Account type is {}".format(accountObj._type)
 	return statement(msg)
 
 
@@ -88,7 +88,6 @@ def getAccsOfType(request):
 		for i in accountList:
 			msg = "Account {}, balance {}".format(accountList[i].name, accountList[i].balance)
 			return statement(msg)
-
 
 def owe_money(how_much):
 	# assuming how_much is a dictionary
