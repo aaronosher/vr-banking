@@ -51,7 +51,10 @@ class capitalOneCustomer(capitalOne):
 
 		return response
 
-	def search_accounts(self, accounts=0, search_term=0):
+	"""
+
+	"""
+	def find_account(self, accounts=0, search_term=0):
 		# Check if accounts is set or not. Use sef.accounts if its not
 		if accounts == 0:
 			accounts = self.accounts
@@ -59,12 +62,55 @@ class capitalOneCustomer(capitalOne):
 		if search_term == 0:
 			return None
 
-		# gets a specific accoutn from the user using user_request
-		logging.debug(search_term)
+		search_term = search_term.lower()
+
+		results = []
+
+		if search_term in ['Credit Card', 'Savings', 'Checking']:
+			results = self.find_multiple_accounts(account_type=search_term)
+
+		else:
+			# gets a specific accoutn from the user using user_request
+			logging.debug(search_term)
+			for i in accounts:
+				for key, value in i.items():
+					if key in ['nickname']:
+						if search_term in value.lower():
+							results.append(capitalOneAccount(i['_id']))
+
+					elif key in ['rewards', 'balance']:
+						if search_term == value:
+							results.append(capitalOneAccount(i['_id']))
+
+		if len(results) > 1:
+			return {'length': len(results), 'accounts': results}
+
+		elif len(results) == 1:
+			return {'length': 1, 'accounts': results}
+
+		else:
+			return {'length': 0}
+
+	"""
+
+	"""
+	def find_multiple_accounts(self, accounts=0, account_type=0):
+		# Check if accounts is set or not. Use sef.accounts if its not
+		if accounts == 0:
+			accounts = self.accounts
+
+		if account_type not in ['Credit Card','Savings','Checking']:
+			return "Invalid Account Type"
+
+		results = []
+
+		# gets all of an account type from the user using user_request
+		logging.debug(account_type)
 		for i in accounts:
-			for key, value in i.items():
-				if search_term == value:
-					return i['_id']
+			if account_type == i['type']:
+				results.append(capitalOneAccount(i['_id']))
+
+		return results
 
 """
 _id => account id
@@ -112,7 +158,4 @@ class capitalOneAccount(capitalOne):
 
 user = capitalOneCustomer(user_id='583998b40fa692b34a9b8766')
 
-account = user.search_accounts(search_term='Savings')
-
-account = capitalOneAccount(account_id=account)
-print(account._type)
+print( user.find_account(search_term='fund'))
