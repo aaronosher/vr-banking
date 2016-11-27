@@ -71,7 +71,7 @@ class capitalOneCustomer(capitalOne):
 			return None
 
 		# make search_term case insesitive
-		search_term = search_term.lower()
+		search_term = search_term.title()
 
 		# set results list
 		results = []
@@ -98,6 +98,7 @@ class capitalOneCustomer(capitalOne):
 
 		# if length is > 0 we return the accounts
 		if len(results) > 0:
+			print("[===] Results:",results)
 			return {'length': len(results), 'accounts': results}
 
 		# If no accounts exists we just return length:0 – this is so there is no confuse between an actual error and just no resutls
@@ -110,6 +111,7 @@ class capitalOneCustomer(capitalOne):
 	"""
 	def find_multiple_accounts(self, accounts=0, account_type=0):
 		# Check if accounts is set or not. Use sef.accounts if its not
+		print("[===] Account type:",account_type)
 		if accounts == 0:
 			accounts = self.accounts
 
@@ -184,7 +186,7 @@ class capitalOneAccount(capitalOne):
 			return {'total': len(bills), 'bills': bills}
 
 
-class captialOneBill(capitalOne):
+class capitalOneBill(capitalOne):
 	# Object variabls
 	_id = None
 	status = None
@@ -219,15 +221,65 @@ class captialOneBill(capitalOne):
 		self.name = response['nickname']
 		self.creation_date = response['creation_date']
 		self.account_id = response['account_id']
-		self.recurring_date = response['recurring_date']
 		self.payment_amount = response['payment_amount']
 		self.account_id = response['account_id']
-		# Doesn't return response?
 
-class CapitalOneTransfer(capitalOne):
+	def pay(self):
+		if self.status == 'completed':
+			return {"errors": "Bill is Already Paid"}
+
+		elif self.status == 'canceled':
+			return {"errors": "Bill has been canceled"}
+
+		if capitalOneTransfer.new(_from=self.account_id, _to=self.GLOBAL_PAYEE, amount=self.payment_amount, API_KEY=self.API_KEY)._id is not None:
+			self.markAsPaid()
+			return {"errors": "None", status: "Bill is Paid"}
+
+	def markAsPaid(self):
+		url = 'http://api.reimaginebanking.com/bills/{}/?key={}'.format(self._id, self.API_KEY)
+		data = {"status": "completed"}
+		headers = {'content-type':'application/json'}
+		response = requests.put(url, data=json.dumps(data), headers=headers)
+
+class capitalOneTransfer(capitalOne):
+	_id = None
+	_type = None
+	transaction_date = None
+	status = None
+	medium = None
+	payer_id = None
+	payee_id = None
+	amount = None
+	description = None
 
 	def __init__(self, transfer_id):
-		return False
+		if transfer_id is None:
+			return None
+
+		self.get(transfer_id=transfer_id)
+
+		return None
+
+
+	def get(self, transfer_id):
+		if transfer_id is None:
+			return False
+
+		url = 'http://api.reimaginebanking.com/transfers/{}/?key={}'.format(transfer_id, self.API_KEY)
+		response = requests.get(url)
+		response = json.loads(response.text)
+
+		print(response)
+
+		self._id = response['_id']
+		self._type = response['type']
+		self.status = response['status']
+		self.medium = response['medium']
+		self.payer_id = response['payer_id']
+		self.payee_id = response['payee_id']
+		self.amount = response['amount']
+
+		return None
 
 	@staticmethod
 	def new(_from, _to, amount, API_KEY):
@@ -235,9 +287,12 @@ class CapitalOneTransfer(capitalOne):
 		url = 'http://api.reimaginebanking.com/accounts/{}/transfers/?key={}'.format(_from, API_KEY)
 		headers = {'content-type':'application/json'}
 		response = requests.post(url, data=json.dumps(data), headers=headers)
-		# response = json.loads(response.text)
+		response = json.loads(response.text)
 
-		print(response.text)
+		if response["objectCreated"]["_id"] is not None:
+			return capitalOneTransfer(transfer_id=response["objectCreated"]["_id"])
+
+		return None
 
 
 
@@ -330,12 +385,11 @@ class summary(capitalOne):
 
 
 user = capitalOneCustomer(user_id='583998b40fa692b34a9b8766')
-# print(user.find_account(search_term="John's Account")['accounts'][0].get_bills()['bills'][0].pay())
 
-# CapitalOneTransfer.new(_from='5839a8320fa692b34a9b8772', _to='583a92c80fa692b34a9b89e8', amount=19.99, API_KEY='64af502fd1accf4c465e230fc76e0327')
 
-account = user.find_account(search_term='retirement')
+bill = capitalOneBill(bill_id='583ab6850fa692b34a9b8a06')
 
+<<<<<<< HEAD
 print("Find Result: ", account)
 print("Account: ", account['accounts'][0]._id)
 
@@ -346,3 +400,6 @@ payment = capitalOnePayment()
 test = payment.pay(amount = 10.0, account='5839a79a0fa692b34a9b8771')
 print(test)
 
+=======
+print(bill.pay())
+>>>>>>> 997cca8f07d0e936a4a91fb619ac03c6991c1c0b
