@@ -181,7 +181,7 @@ class capitalOneAccount(capitalOne):
 		response = json.loads(response.text)
 
 		for i in response:
-			bills.append(captialOneBill(bill_id=i['_id']))
+			bills.append(capitalOneBill(bill_id=i['_id']))
 
 			return {'total': len(bills), 'bills': bills}
 
@@ -386,7 +386,7 @@ class summary(capitalOne):
 
 user = capitalOneCustomer(user_id='583998b40fa692b34a9b8766')
 
-print(user.find_account(search_term='ben checking'))
+print(user.find_account(search_term='ben checking')['accounts'][0].get_bills())
 #
 # bill = capitalOneBill(bill_id='583ab6850fa692b34a9b8a06')
 #
