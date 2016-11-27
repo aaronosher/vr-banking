@@ -304,6 +304,4 @@ class capitalOneTransfer(capitalOne):
 
 user = capitalOneCustomer(user_id='583998b40fa692b34a9b8766')
 
-bill = capitalOneBill(bill_id='583ab6850fa692b34a9b8a06')
-
-print(bill.pay())
+print(user.find_account(search_term='ben checking')['accounts'][0])
