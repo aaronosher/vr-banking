@@ -14,6 +14,7 @@ class capitalOne:
 	GLOBAL_PAYEE = '583a92c80fa692b34a9b89e8'
 
 
+
 class capitalOneCustomer(capitalOne):
 
 	# Object Variables
@@ -125,6 +126,7 @@ class capitalOneCustomer(capitalOne):
 
 		return results
 
+
 def get_total_balance(self):
 	total = 0
 	for i in self.accounts:
@@ -135,6 +137,8 @@ def get_total_balance(self):
 			total = total + i['balance']
 			print(total)
 	return total
+
+
 
 """
 name => account id
@@ -167,23 +171,8 @@ class capitalOneAccount(capitalOne):
 		if account_id is None:
 			return None
 
-		# gets the users accounts information
-		url = 'http://api.reimaginebanking.com/accounts/{}/?key={}'.format(account_id, self.API_KEY)
-		response = requests.get(url)
-		response = json.loads(response.text)
-
-		self._id = response['_id']
-		self.name = response['nickname']
-		self.balance = response['balance']
-		self.rewards = response['rewards']
-		self._type = response['type']
-		self.customer_id = response['customer_id']
-
-
-		return None
-
 	def get_bills(self):
-		bills =  []
+		bills = []
 		# gets the account's bills
 		url = 'http://api.reimaginebanking.com/accounts/{}/bills?key={}'.format(self._id, self.API_KEY)
 		response = requests.get(url)
@@ -192,7 +181,8 @@ class capitalOneAccount(capitalOne):
 		for i in response:
 			bills.append(captialOneBill(bill_id=i['_id']))
 
-		return {'total': len(bills), 'bills': bills}
+			return {'total': len(bills), 'bills': bills}
+
 
 class captialOneBill(capitalOne):
 	# Object variabls
@@ -223,6 +213,7 @@ class captialOneBill(capitalOne):
 		response = json.loads(response.text)
 
 		self._id = response['_id']
+
 		self.status = response['status']
 		self.payee = response['payee']
 		self.name = response['nickname']
@@ -249,6 +240,95 @@ class CapitalOneTransfer(capitalOne):
 		print(response.text)
 
 
+
+class capitalOnePayment(capitalOne):
+
+	def __init__(self):
+		return None
+
+	def pay(self, amount, account, merchant_id='57cf75cea73e494d8675ec49'):
+		try:
+			amount = float(amount)
+		except TypeError as e:
+			print("Amount is not a number.")
+			return 1
+
+		data = {"merchant_id": "57cf75cea73e494d8675ec49","medium": "balance","purchase_date": "2016-11-27","amount": amount,"description": ""}
+
+		url = 'http://api.reimaginebanking.com/merchants?key={}&id={}'.format(self.API_KEY, '5839a79a0fa692b34a9b8771')
+		r = requests.post(url, data)
+		print(r)
+		print(r.text)
+		if r == """"<Response [200]>""":
+			print(r.text)
+		else:
+			return False
+
+
+	def owe_money(self, how_much):
+		# this may not work for names with numbers in
+		import os
+		import json
+
+		# assuming how_much is a dictionary
+		if os.path.exists("owe.json"):
+			file = open("owe.json", 'r+')
+			data = json.load(file)
+
+			key = how_much[0]
+			value = how_much[1]
+
+			data[key] = value
+
+			file.close()
+			file = open("owe.json", 'w')
+			json.dump(data, fp=file)
+			file.close()
+		else:
+			# this literally doesnt work
+			file = open("owe.json", 'w')
+			how_much = list(how_much)
+			a = json.dump(how_much)
+			file.write(a)
+			file.close()
+
+	def how_much_do_i_owe(self):
+		with open("owe.json", 'r') as fp:
+			return json.load(fp)
+
+	def getPayment(self, bill_id):
+		if bill_id is None:
+			return None
+		# whats bill ID
+
+		# gets the bill information
+		data = {"merchant_id": "57cf75cea73e494d8675ec4a", "medium": "balance", "purchase_date": "2016-11-27", "amount": amount, "description": "product"}
+		url = 'http://api.reimaginebanking.com/merchants?key={}&id={}'.format(self.API_KEY, account)
+
+		r = requests.post(url, data)
+		print(r)
+		# we literally dont need json here, just a true or false code
+
+class summary(capitalOne):
+
+	def __init__(self):
+		return None
+
+	def summary(self):
+		# Financial summart
+		object = capitalOnePayment()
+		owe = object.how_much_do_i_owe(self)
+		total = get_total_balance(self)
+		object = capitalOneCustomer(self)
+		total = object.get_total_balance()
+
+		length = len(owe)
+		string = ""
+		for key, value in owe.items():
+			string = string + "{} {} pounds".format(key, value)
+		everything = "You currently have a networth of {}. You owe {}".format(total, string)
+
+
 user = capitalOneCustomer(user_id='583998b40fa692b34a9b8766')
 # print(user.find_account(search_term="John's Account")['accounts'][0].get_bills()['bills'][0].pay())
 
@@ -258,3 +338,11 @@ account = user.find_account(search_term='retirement')
 
 print("Find Result: ", account)
 print("Account: ", account['accounts'][0]._id)
+
+
+
+user = capitalOneCustomer(user_id='583998b40fa692b34a9b8766')
+payment = capitalOnePayment()
+test = payment.pay(amount = 10.0, account='5839a79a0fa692b34a9b8771')
+print(test)
+
