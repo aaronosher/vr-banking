@@ -1,8 +1,10 @@
-import logging
+import logging, capital_one
 from random import randint
 from flask import Flask, render_template
 from flask_ask import Ask, statement, question, session
-
+from capital_one import capitalOneAccount, capitalOneCustomer, user
+import os.path
+import json
 app = Flask(__name__)
 ask = Ask(app, "/")
 logging.getLogger("flask_ask").setLevel(logging.DEBUG)
@@ -10,53 +12,108 @@ logging.getLogger("flask_ask").setLevel(logging.DEBUG)
 # Startup launch command
 @ask.launch
 def launch():
-    return statement("Minions assemble")
+	return statement("Minions assemble")
 
 # Intent for whenever hello is said (See utters)
 @ask.intent("HelloIntent")
 def hello():
-    return statement("I welcome you minion")
+	return statement("I welcome you minion")
+
 
 # Stop intent
 @ask.intent("AMAZON.StopIntent")
 def stop():
-    return statement("Exiting program")
+	return statement("Exiting program")
+
 
 # Session ended console output
 @ask.session_ended
 def sessionEnded():
-    log.debug("Session ended")
-    return "", 200
+	log.debug("Session ended")
+	return "", 200
+
+# Responds to given request from user input
+@ask.intent("GetFirstName")
+def getRequest(first_name):
+	msg = "Your name is {}".format(first_name)
+	return statement(msg)
+
+@ask.intent("GetAccInfo")
+def getInfo(request):
+	inputRequest = str(request.title())
+	print("Input Request: ", inputRequest) # Debugging only
+	if  (user.find_account(search_term = inputRequest)) == None:
+		msg = "I am sorry, I did not understand"
+	else:
+		accountID = user.find_account(search_term = inputRequest)
+		account = capitalOneAccount(account_id = accountID)
+		msg = "Account {0}. Your balance is {1} pounds".format(account.name, account.balance)
+	return statement(msg)
+
+@ask.intent("GetAccBal")
+def getBal(request):
+	inputRequest = str(request.title())
+	print("Input Request: ", inputRequest) #Debugging only
+	if  (user.find_account(search_term = inputRequest)) == None:
+		msg = "I am sorry, I did not understand"
+	else:
+		accountID = user.find_account(search_term = inputRequest)
+		account = capitalOneAccount(account_id = accountID)
+		msg = "Your balance is {} pounds".format(account.balance)
+	return statement(msg)
+
+@ask.intent("GetAccType")
+def getType(request):
+	inputRequest = str(request.title())
+	print("Input Request: ", inputRequest) #Debugging only
+	if  (user.find_account(search_term = inputRequest)) == None:
+		msg = "I am sorry, I did not understand"
+	else:
+		accountID = user.find_account(search_term = inputRequest)
+		account = capitalOneAccount(account_id = accountID)
+		msg = "Account type is {}".format(account._type)
+	return statement(msg)
 
 
-# Python functions
-class capitalOne:
-	@staticmethod
-	def get_user():
-		# Gets the users information
-		url = '''http://api.reimaginebanking.com/customers/583998b40fa692b34a9b8766/accounts?key={}'''.format(API_KEY)
-		data = '{"type": "Credit Card","nickname": "Way Too High APR","rewards": 700,"balance": 0}'
-		response = requests.get(url, data=data)
-		return response
-
-	def get_account(user_account_id):
-		# gets the users accounts information
-		url = '''http://api.reimaginebanking.com/accounts/{}/?key={}'''.format(user_account_id, API_KEY)
-		response = requests.get(url)
-		return response
-
-	def parse_accounts_of_users(parsed_json, user_request):
-		logging.debug(user_request)
-		# gets a specific accoutn from the user using user_request
+# Gets multiple accounts of the given type
+@ask.intent("GetAccsOfType")
+def getAccsOfType(request):
+	inputRequest = str(request.title())
+	print("Input Request: ", inputRequest) #Debugging only
+	if  (user.find_account(search_term = inputRequest)) == None:
+		msg = "I am sorry, I did not understand"
+		return statement(msg)
+	else:
+		accountList = capitalOneCustomer.find_multiple_accounts(user, account_type = inputRequest)
+		for i in accountList:
+			msg = "Account {}, balance {}".format(accountList[i].name, accountList[i].balance)
+			return statement(msg)
 
 
-		logging.debug("parsed json is")
-		for i in parsed_json:
-			for key, value in i.items():
-				if user_request == value:
-                    return i['_id']
+def owe_money(how_much):
+	# assuming how_much is a dictionary
+	if os.path.exists("owe.json"):
+		with open("owe.json", 'r+') as fp:
+			data = json.load(fp)
+			data.append(how_much)
+			with open("owe.json", 'w') as fp:
+				json.dump(how_much, fp)
+	else:
+		with open("owe.json", 'w') as fp:
+			json.dump(how_much, fp)
 
+def how_much_do_i_owe():
+	with open("owe.json", 'r') as fp:
+		return json.load('owe.json', fp)
+
+#@ask.intent("GetAccountID")
+#def getID():
+#	accDict = user.useful_information_account(id='5839a4890fa692b34a9b8770')
+#	user.parse_accounts_of_users(user.get_account("5839a4890fa692b34a9b8770"), userRequest)
+#	msg = "Account name " + accDict["nickname"] + " account balance " + accDict["balance"]
+#	return statement(msg)
 
 if __name__ == '__main__':
+	app.run()
 
-    app.run(debug=True)
+
