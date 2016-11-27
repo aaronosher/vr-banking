@@ -40,7 +40,7 @@ def getRequest(first_name):
 
 @ask.intent("GetAccInfo")
 def getInfo(request):
-	inputRequest = str(request.capitalize())
+	inputRequest = str(request.title())
 	print("Input Request: ", inputRequest) # Debugging only
 	if  (user.search_accounts(search_term = inputRequest)) == None:
 		msg = "I am sorry, I did not understand"
@@ -52,7 +52,7 @@ def getInfo(request):
 
 @ask.intent("GetAccBal")
 def getBal(request):
-	inputRequest = str(request.capitalize())
+	inputRequest = str(request.title())
 	print("Input Request: ", inputRequest) #Debugging only
 	if  (user.search_accounts(search_term = inputRequest)) == None:
 		msg = "I am sorry, I did not understand"
@@ -64,7 +64,7 @@ def getBal(request):
 
 @ask.intent("GetAccType")
 def getType(request):
-	inputRequest = str(request.capitalize())
+	inputRequest = str(request.title())
 	print("Input Request: ", inputRequest) #Debugging only
 	if  (user.search_accounts(search_term = inputRequest)) == None:
 		msg = "I am sorry, I did not understand"
