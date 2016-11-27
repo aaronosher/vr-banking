@@ -53,7 +53,7 @@ class capitalOneCustomer(capitalOne):
 
 		return response
 
-	def search_accounts(self, accounts=0, search_term=0):
+	def find_single_accounts(self, accounts=0, search_term=0):
 		# Check if accounts is set or not. Use sef.accounts if its not
 		if accounts == 0:
 			accounts = self.accounts
