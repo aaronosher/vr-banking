@@ -2,7 +2,7 @@ import logging, capital_one
 from random import randint
 from flask import Flask, render_template
 from flask_ask import Ask, statement, question, session
-from capital_one import user
+from capital_one import capitalOneAccount, capitalOneCustomer, user
 
 app = Flask(__name__)
 ask = Ask(app, "/")
@@ -44,8 +44,8 @@ def getInfo(request):
 		msg = "I am sorry, I did not understand"
 	else:
 		accountID = user.search_accounts(search_term = inputRequest)
-		accDict = user.get_useful_information(account_id = accountID)
-		msg = "Account {0}. Your balance is {1} pounds".format(accDict["Name"], accDict["Balance"])
+		account = capitalOneAccount(account_id = accountID)
+		msg = "Account {0}. Your balance is {1} pounds".format(account.name, account.balance)
 	return statement(msg)
 
 @ask.intent("GetAccBal")
@@ -56,8 +56,20 @@ def getBal(request):
 		msg = "I am sorry, I did not understand"
 	else:
 		accountID = user.search_accounts(search_term = inputRequest)
-		accDict = user.get_useful_information(account_id = accountID)
-		msg = "Your balance is {} pounds".format(accDict["Balance"])
+		account = capitalOneAccount(account_id = accountID)
+		msg = "Your balance is {} pounds".format(account.balance)
+	return statement(msg)
+
+@ask.intent("GetAccType")
+def getType(request):
+	inputRequest = str(request.capitalize())
+	print("Input Request: ", inputRequest) #Debugging only
+	if  (user.search_accounts(search_term = inputRequest)) == None:
+		msg = "I am sorry, I did not understand"
+	else:
+		accountID = user.search_accounts(search_term = inputRequest)
+		account = capitalOneAccount(account_id = accountID)
+		msg = "Account type is {}".format(account._type)
 	return statement(msg)
 
 #@ask.intent("GetAccountID")
