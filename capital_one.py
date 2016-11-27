@@ -70,7 +70,7 @@ class capitalOneCustomer(capitalOne):
 			return None
 
 		# make search_term case insesitive
-		search_term = search_term.lower()
+		search_term = search_term.title()
 
 		# set results list
 		results = []
@@ -97,6 +97,7 @@ class capitalOneCustomer(capitalOne):
 
 		# if length is > 0 we return the accounts
 		if len(results) > 0:
+			print("[===] Results:",results)
 			return {'length': len(results), 'accounts': results}
 
 		# If no accounts exists we just return length:0 – this is so there is no confuse between an actual error and just no resutls
@@ -109,6 +110,7 @@ class capitalOneCustomer(capitalOne):
 	"""
 	def find_multiple_accounts(self, accounts=0, account_type=0):
 		# Check if accounts is set or not. Use sef.accounts if its not
+		print("[===] Account type:",account_type)
 		if accounts == 0:
 			accounts = self.accounts
 
@@ -254,7 +256,7 @@ user = capitalOneCustomer(user_id='583998b40fa692b34a9b8766')
 
 # CapitalOneTransfer.new(_from='5839a8320fa692b34a9b8772', _to='583a92c80fa692b34a9b89e8', amount=19.99, API_KEY='64af502fd1accf4c465e230fc76e0327')
 
-account = user.find_account(search_term='retirement')
 
-print("Find Result: ", account)
-print("Account: ", account['accounts'][0]._id)
+#account = user.find_account(search_term='retirement')
+#print("Find Result: ", account)
+#print("Account: ", account['accounts'][0]._id)
