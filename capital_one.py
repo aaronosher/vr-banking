@@ -230,6 +230,7 @@ class captialOneBill(capitalOne):
 		self.recurring_date = response['recurring_date']
 		self.payment_amount = response['payment_amount']
 		self.account_id = response['account_id']
+		# Doesn't return response?
 
 
 user = capitalOneCustomer(user_id='583998b40fa692b34a9b8766')

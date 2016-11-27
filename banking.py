@@ -42,10 +42,10 @@ def getRequest(first_name):
 def getInfo(request):
 	inputRequest = str(request.title())
 	print("Input Request: ", inputRequest) # Debugging only
-	if  (user.search_accounts(search_term = inputRequest)) == None:
+	if  (user.find_account(search_term = inputRequest)) == None:
 		msg = "I am sorry, I did not understand"
 	else:
-		accountID = user.search_accounts(search_term = inputRequest)
+		accountID = user.find_account(search_term = inputRequest)
 		account = capitalOneAccount(account_id = accountID)
 		msg = "Account {0}. Your balance is {1} pounds".format(account.name, account.balance)
 	return statement(msg)
@@ -54,10 +54,10 @@ def getInfo(request):
 def getBal(request):
 	inputRequest = str(request.title())
 	print("Input Request: ", inputRequest) #Debugging only
-	if  (user.search_accounts(search_term = inputRequest)) == None:
+	if  (user.find_account(search_term = inputRequest)) == None:
 		msg = "I am sorry, I did not understand"
 	else:
-		accountID = user.search_accounts(search_term = inputRequest)
+		accountID = user.find_account(search_term = inputRequest)
 		account = capitalOneAccount(account_id = accountID)
 		msg = "Your balance is {} pounds".format(account.balance)
 	return statement(msg)
@@ -66,10 +66,10 @@ def getBal(request):
 def getType(request):
 	inputRequest = str(request.title())
 	print("Input Request: ", inputRequest) #Debugging only
-	if  (user.search_accounts(search_term = inputRequest)) == None:
+	if  (user.find_account(search_term = inputRequest)) == None:
 		msg = "I am sorry, I did not understand"
 	else:
-		accountID = user.search_accounts(search_term = inputRequest)
+		accountID = user.find_account(search_term = inputRequest)
 		account = capitalOneAccount(account_id = accountID)
 		msg = "Account type is {}".format(account._type)
 	return statement(msg)
@@ -80,7 +80,7 @@ def getType(request):
 def getAccsOfType(request):
 	inputRequest = str(request.title())
 	print("Input Request: ", inputRequest) #Debugging only
-	if  (user.search_accounts(search_term = inputRequest)) == None:
+	if  (user.find_account(search_term = inputRequest)) == None:
 		msg = "I am sorry, I did not understand"
 		return statement(msg)
 	else:
