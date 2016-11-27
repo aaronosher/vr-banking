@@ -11,6 +11,7 @@ logging.basicConfig(filename='_ProgramLog.txt', level=logging.DEBUG,
 class capitalOne:
 	#API key
 	API_KEY = '64af502fd1accf4c465e230fc76e0327'
+	GLOBAL_PAYEE = '583a92c80fa692b34a9b89e8'
 
 
 class capitalOneCustomer(capitalOne):
@@ -232,6 +233,28 @@ class captialOneBill(capitalOne):
 		self.account_id = response['account_id']
 		# Doesn't return response?
 
+class CapitalOneTransfer(capitalOne):
+
+	def __init__(self, transfer_id):
+		return False
+
+	@staticmethod
+	def new(_from, _to, amount, API_KEY):
+		data = {"medium": "balance", "payee_id": _to, "amount": amount}
+		url = 'http://api.reimaginebanking.com/accounts/{}/transfers/?key={}'.format(_from, API_KEY)
+		headers = {'content-type':'application/json'}
+		response = requests.post(url, data=json.dumps(data), headers=headers)
+		# response = json.loads(response.text)
+
+		print(response.text)
+
 
 user = capitalOneCustomer(user_id='583998b40fa692b34a9b8766')
-print(user.find_multiple_accounts(account_type='Savings'))
+# print(user.find_account(search_term="John's Account")['accounts'][0].get_bills()['bills'][0].pay())
+
+# CapitalOneTransfer.new(_from='5839a8320fa692b34a9b8772', _to='583a92c80fa692b34a9b89e8', amount=19.99, API_KEY='64af502fd1accf4c465e230fc76e0327')
+
+account = user.find_account(search_term='retirement')
+
+print("Find Result: ", account)
+print("Account: ", account['accounts'][0]._id)
