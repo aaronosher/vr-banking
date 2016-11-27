@@ -14,6 +14,7 @@ class capitalOne:
 	GLOBAL_PAYEE = '583a92c80fa692b34a9b89e8'
 
 
+
 class capitalOneCustomer(capitalOne):
 
 	# Object Variables
@@ -70,7 +71,7 @@ class capitalOneCustomer(capitalOne):
 			return None
 
 		# make search_term case insesitive
-		search_term = search_term.lower()
+		search_term = search_term.title()
 
 		# set results list
 		results = []
@@ -97,6 +98,7 @@ class capitalOneCustomer(capitalOne):
 
 		# if length is > 0 we return the accounts
 		if len(results) > 0:
+			print("[===] Results:",results)
 			return {'length': len(results), 'accounts': results}
 
 		# If no accounts exists we just return length:0 – this is so there is no confuse between an actual error and just no resutls
@@ -109,6 +111,7 @@ class capitalOneCustomer(capitalOne):
 	"""
 	def find_multiple_accounts(self, accounts=0, account_type=0):
 		# Check if accounts is set or not. Use sef.accounts if its not
+		print("[===] Account type:",account_type)
 		if accounts == 0:
 			accounts = self.accounts
 
@@ -125,6 +128,7 @@ class capitalOneCustomer(capitalOne):
 
 		return results
 
+
 def get_total_balance(self):
 	total = 0
 	for i in self.accounts:
@@ -135,6 +139,8 @@ def get_total_balance(self):
 			total = total + i['balance']
 			print(total)
 	return total
+
+
 
 """
 name => account id
@@ -167,23 +173,8 @@ class capitalOneAccount(capitalOne):
 		if account_id is None:
 			return None
 
-		# gets the users accounts information
-		url = 'http://api.reimaginebanking.com/accounts/{}/?key={}'.format(account_id, self.API_KEY)
-		response = requests.get(url)
-		response = json.loads(response.text)
-
-		self._id = response['_id']
-		self.name = response['nickname']
-		self.balance = response['balance']
-		self.rewards = response['rewards']
-		self._type = response['type']
-		self.customer_id = response['customer_id']
-
-
-		return None
-
 	def get_bills(self):
-		bills =  []
+		bills = []
 		# gets the account's bills
 		url = 'http://api.reimaginebanking.com/accounts/{}/bills?key={}'.format(self._id, self.API_KEY)
 		response = requests.get(url)
@@ -192,7 +183,8 @@ class capitalOneAccount(capitalOne):
 		for i in response:
 			bills.append(captialOneBill(bill_id=i['_id']))
 
-		return {'total': len(bills), 'bills': bills}
+			return {'total': len(bills), 'bills': bills}
+
 
 class capitalOneBill(capitalOne):
 	# Object variabls
@@ -223,6 +215,7 @@ class capitalOneBill(capitalOne):
 		response = json.loads(response.text)
 
 		self._id = response['_id']
+
 		self.status = response['status']
 		self.payee = response['payee']
 		self.name = response['nickname']
@@ -235,8 +228,8 @@ class capitalOneBill(capitalOne):
 		if self.status == 'completed':
 			return {"errors": "Bill is Already Paid"}
 
-		elif self.status == 'cancled':
-			return {"errors": "Bill has been cancled"}
+		elif self.status == 'canceled':
+			return {"errors": "Bill has been canceled"}
 
 		if capitalOneTransfer.new(_from=self.account_id, _to=self.GLOBAL_PAYEE, amount=self.payment_amount, API_KEY=self.API_KEY)._id is not None:
 			self.markAsPaid()
@@ -302,6 +295,99 @@ class capitalOneTransfer(capitalOne):
 		return None
 
 
+
+class capitalOnePayment(capitalOne):
+
+	def __init__(self):
+		return None
+
+	def pay(self, amount, account, merchant_id='57cf75cea73e494d8675ec49'):
+		try:
+			amount = float(amount)
+		except TypeError as e:
+			print("Amount is not a number.")
+			return 1
+
+		data = {"merchant_id": "57cf75cea73e494d8675ec49","medium": "balance","purchase_date": "2016-11-27","amount": amount,"description": ""}
+
+		url = 'http://api.reimaginebanking.com/merchants?key={}&id={}'.format(self.API_KEY, '5839a79a0fa692b34a9b8771')
+		r = requests.post(url, data)
+		print(r)
+		print(r.text)
+		if r == """"<Response [200]>""":
+			print(r.text)
+		else:
+			return False
+
+
+	def owe_money(self, how_much):
+		# this may not work for names with numbers in
+		import os
+		import json
+
+		# assuming how_much is a dictionary
+		if os.path.exists("owe.json"):
+			file = open("owe.json", 'r+')
+			data = json.load(file)
+
+			key = how_much[0]
+			value = how_much[1]
+
+			data[key] = value
+
+			file.close()
+			file = open("owe.json", 'w')
+			json.dump(data, fp=file)
+			file.close()
+		else:
+			# this literally doesnt work
+			file = open("owe.json", 'w')
+			how_much = list(how_much)
+			a = json.dump(how_much)
+			file.write(a)
+			file.close()
+
+	def how_much_do_i_owe(self):
+		with open("owe.json", 'r') as fp:
+			return json.load(fp)
+
+	def getPayment(self, bill_id):
+		if bill_id is None:
+			return None
+		# whats bill ID
+
+		# gets the bill information
+		data = {"merchant_id": "57cf75cea73e494d8675ec4a", "medium": "balance", "purchase_date": "2016-11-27", "amount": amount, "description": "product"}
+		url = 'http://api.reimaginebanking.com/merchants?key={}&id={}'.format(self.API_KEY, account)
+
+		r = requests.post(url, data)
+		print(r)
+		# we literally dont need json here, just a true or false code
+
+class summary(capitalOne):
+
+	def __init__(self):
+		return None
+
+	def summary(self):
+		# Financial summart
+		object = capitalOnePayment()
+		owe = object.how_much_do_i_owe(self)
+		total = get_total_balance(self)
+		object = capitalOneCustomer(self)
+		total = object.get_total_balance()
+
+		length = len(owe)
+		string = ""
+		for key, value in owe.items():
+			string = string + "{} {} pounds".format(key, value)
+		everything = "You currently have a networth of {}. You owe {}".format(total, string)
+
+
 user = capitalOneCustomer(user_id='583998b40fa692b34a9b8766')
 
 print(user.find_account(search_term='ben checking')['accounts'][0])
+#
+# bill = capitalOneBill(bill_id='583ab6850fa692b34a9b8a06')
+#
+# print(bill.pay())
