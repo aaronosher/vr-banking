@@ -21,6 +21,4 @@ def how_much_do_i_owe():
 	with open("owe.json", 'r') as fp:
 		return json.load('owe.json', fp)
 
-owe = {"bethany" : "30"}
-owe_money(how_much=owe)
 
